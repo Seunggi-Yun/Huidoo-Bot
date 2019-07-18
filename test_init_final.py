@@ -7,9 +7,11 @@ import discord
 import datetime
 import random
 import math
+import gspread
 from discord.ext import commands
 from gtts import gTTS
 from github import Github
+from oauth2client.service_account import ServiceAccountCredentials
 import base64
 
 if not discord.opus.is_loaded():
@@ -96,6 +98,8 @@ def init():
 	global channel_type
 	global LoadChk
 	
+	global gc
+	
 	tmp_bossData = []
 	tmp_fixed_bossData = []
 	f = []
@@ -119,13 +123,14 @@ def init():
 		fixed_inputData.remove('\r')
 
 	basicSetting.append(inputData[0][11:])   #0 : timezone
-	basicSetting.append(inputData[4][15:])   #1 : before_alert
-	basicSetting.append(inputData[6][10:])   #2 : mungChk
-	basicSetting.append(inputData[5][16:])   #3 : before_alert1
-	basicSetting.append(inputData[1][14:16]) #4 : restarttime 시
-	basicSetting.append(inputData[1][17:])   #5 : restarttime 분
-	basicSetting.append(inputData[2][15:])   #6 : voice채널 ID
-	basicSetting.append(inputData[3][14:])   #7 : text채널 ID
+	basicSetting.append(inputData[5][15:])   #1 : before_alert
+	basicSetting.append(inputData[7][10:])   #2 : mungChk
+	basicSetting.append(inputData[6][16:])   #3 : before_alert1
+	basicSetting.append(inputData[2][14:16]) #4 : restarttime 시
+	basicSetting.append(inputData[2][17:])   #5 : restarttime 분
+	basicSetting.append(inputData[3][15:])   #6 : voice채널 ID
+	basicSetting.append(inputData[4][14:])   #7 : text채널 ID
+	basicSetting.append(inputData[1][12:])   #8 : google json 파일
 	
 	for i in range(len(basicSetting)):
 		basicSetting[i] = basicSetting[i].strip()
@@ -137,14 +142,14 @@ def init():
 		basicSetting[7] = int(basicSetting[7])
 	#print (inputData, len(inputData))
 	
-	bossNum = int((len(inputData)-7)/5)
+	bossNum = int((len(inputData)-8)/5)
 
 	fixed_bossNum = int(len(fixed_inputData)/4) 
 	
 	#print (bossNum)
 	
 	for i in range(bossNum):
-		tmp_bossData.append(inputData[i*5+7:i*5+12])
+		tmp_bossData.append(inputData[i*5+8:i*5+13])
 
 	for i in range(fixed_bossNum):
 		tmp_fixed_bossData.append(fixed_inputData[i*4:i*4+4]) 
@@ -208,7 +213,10 @@ def init():
 	for i in range(fixed_bossNum):
 		if fixed_bossTime[i] < tmp_fixed_now :
 			fixed_bossTime[i] = fixed_bossTime[i] + datetime.timedelta(days=int(1))
-		
+	
+	scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+	credentials = ServiceAccountCredentials.from_json_keyfile_name('./' + basicSetting[8], scope)
+	gc = gspread.authorize(credentials)
 	#inidata.close()
 
 init()
@@ -528,6 +536,8 @@ async def on_ready():
 	
 	global chkvoicechannel
 	global chflg
+	
+	global gc
 			
 	print("Logged in as ") #화면에 봇의 아이디, 닉네임이 출력됩니다.
 	print(client.user.name)
@@ -1267,7 +1277,9 @@ async def on_message(msg):
 			now3 = datetime.datetime.now() + datetime.timedelta(hours = int(basicSetting[0]))
 			await client.get_channel(channel).send(now3.strftime('%Y-%m-%d') + '   ' + now3.strftime('%H:%M:%S'), tts=False)
 
-		if message.content.startswith('/리젠'):
+		##################################
+			
+		if message.content.startswith('!리젠'):
 			embed = discord.Embed(
 					title='----- 리스폰 보스 -----',
 					description= ' ')
@@ -1282,5 +1294,75 @@ async def on_message(msg):
 			embed.add_field(name='8시간', value='리칸트', inline=False)
 			embed.add_field(name='10시간', value='커츠', inline=False)
 			await client.get_channel(channel).send(embed=embed, tts=False)
+			
+		################ 정산확인 ################ 
+
+		if message.content.startswith('!정산 '):
+			SearchID = hello[4:]
+			wks = gc.open("분배시트").worksheet("모든내역검색")
+
+			wks.update_acell('E2', SearchID)
+
+			result = wks.acell('F2').value
+
+			await client.get_channel(channel).send(SearchID + '님의 분배금은 ' + result + ' 다이야 입니다.', tts=False)
+
+		################ 정산분배 ################ 
+
+		if message.content.startswith('!정산분배'):
+			SearchID = hello[6:]
+			wks = gc.open("분배시트").worksheet("줄내역검색")
+
+			Cell_ID = []
+			tmp_ID  = []
+			result_ID = []
+
+			Cell_Dia = []
+			tmp_Dia  = []
+			result_Dia = []
+
+			i = 0
+
+			wks.update_acell('E2', SearchID)
+
+			cell_ID_list = wks.range('L6:L200')
+			cell_Dia_list = wks.range('P6:P200')
+
+			for i in range(len(cell_ID_list)):
+				if cell_ID_list[i].value != '':
+					Cell_ID.append(cell_ID_list[i].value)
+					Cell_Dia.append(cell_Dia_list[i].value)
+				else:
+					break
+
+			tmp_ID = Cell_ID
+			result_ID = list(set(tmp_ID))
+
+			for i in range(len(result_ID)):
+				result_Dia.append(0)
+
+			for i in range(len(Cell_ID)):
+				for j in range(len(result_ID)):
+					if result_ID[j] == Cell_ID[i]:
+						result_Dia[j] = int(float(result_Dia[j]) + float(Cell_Dia[i]))
+
+			result = wks.acell('F2').value
+
+			information = ''
+			for i in range(len(result_ID)):
+				information += result_ID[i] + ' : ' + str(result_Dia[i]) + ' 다이야\n'
+
+			#await client.get_channel(channel).send(SearchID + '님이 분배해야할 다이야는 ' + result + ' 다이야 입니다.', tts=False)
+			embed = discord.Embed(
+					title = "----- 분 배 금 -----",
+					description= '총 '+ result + ' 다이야',
+					color=0xff00ff
+					)
+			embed.add_field(
+					name="----- 분배내역 -----",
+					value=information,
+					inline = False
+					)
+			await client.get_channel(channel).send( embed=embed, tts=False)
 
 client.run(access_token)
