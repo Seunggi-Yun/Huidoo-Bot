@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "fourth-sphere-247108",
+  "private_key_id": "6649d189100eba7c929e7d26b3b1b2b6c7964680",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC9EfUykbsuwoA0\nPv8F2Me1R+Ep0CPF91UIOQlvA4Sm4eJHtHz6EtLgREePNEwgQY8tg83nZMlnSY/H\nXCxV0qJBtwU8Z0ZbmOlytSELUK/5CSxWvhk1VoyZ+OzLAZdMxfO+ZVIbqDVaeSqY\nbNkNrD5HhxAzdMYkCVZ2BCsHT4QBkKeRoiz5rWKI7yZ63+OC7gLBI3gLjLWOwaeJ\nm7xo86xyQerNv05gjLpy5wJyiv+t6vh7KfloM/nVabEYXtogo+hZVRVND2fFxFEI\nnW6wNJH4wxwIA/XOB1tOoj7OnDuBrwKPS6aaAd8DNc6p64IkjONGAKdEhnEIuXFR\nxCJ+MKBRAgMBAAECggEALX6nd2hhN+517nx1HZlM7tZRvB+5J+7sn1qoJjYcwpJK\ngnIP+5Wxd+T+KhuNsNpNo0hasLIME4Y8Kl7HzUvunqz1PdRk9e/8xo0Gm0QqX9yg\n9mtuQesmUHt5MR0cJM1iKh+TyxNl6TQMN5rDfNqELu51S8hu0CeODj5RA0STMVPN\nPfy1oMEWeIxxUG7nnUjYTp9yDimqbsBK17Fp0ykv5YKbKXC0drmde8xJymfOm/qU\ngBp2uwD7ZSukM0Pk+zPFyBMQ9AQfbhd2OTGMwUiVwkoSAQ93HOk+WtX+ozHbp0Wx\nwt0Me/KlJML3qsaJKbH1wNiScXCv8zufvljRMfndpQKBgQDmL9aie5ZxwJ4W9y+d\nD3XwF6gbi9ZbFkCq5f3Sdf/9S0zb2s+5n9pDGCbltVM3rAGNU+0yGWRp2cW0nDP/\nEeDTUu/idZyMYHrjk81wLwQi486PPRkIZvA+20hlVLiLj79Z3g1imeOl/MMK3dWV\n2LkNMb4+aUgrvFwfyQ3NQQwA7QKBgQDSRb+M89hANRAdv85jRVBAF6KQBtM8Siti\nsSS2oy8MsOwxKiPyvQTZMiVQshq6GDzw2riK0FbiJqajdRV+CI+MfZjdnSHaJ4QA\nXjLcm4XQXBkIyGj7i09OvbQPZJtyNN6siverChAno/gnTR6IKudanAQNNZjv7EfX\ngJxViuKEdQKBgQC+s41XSZpnHVQb5Ke+sCteQMsWHzD0f6gNrcMuVHJDT9oaHtqP\nh36UrXK0RhfufINAqfJN2jmVdETWD78IJ7CigwiYDiYnKltFJZNCyMDdguwDQXP2\nwQlymcsNoDXP8cRu2IcwVBwEzTZtT0F/BnCxHK/nFuQiz8dm0fOsQ6KFNQKBgQDH\nZVLO1BFWWbtNqqyJYJpIHOGQGJjJTEA2F2uMMdSVAVUJDkAGmI33dOED09EadY+c\nipyDLiulyycsTAQ0fuO5QwTp6m7Gk8BOJQWwQ16yhhNLS9iZ6LItJiGQk0QBGfeq\nwSE5NZK6NHhGtI/mamD3gIkrCY9cvMAnsJMPX2OMXQKBgQDDkWlX2gEBCphhAGou\nMoTmjvfSJx7C+WubUhy0aQaV+BGFCdnjgVi5HTnZSIZL+8NcADvGAbrRg9tra9R5\nOe1pLmRzvHOG+rdB3Hi4U5xAox//8dVeqUnqRFIUHAouGBGDCWu8XxZO87fJiEV5\nM9Za1F7R2v3WQCpF4z7BvjpLIg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bossbotjungsan@fourth-sphere-247108.iam.gserviceaccount.com",
+  "client_id": "102174606957334025621",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bossbotjungsan%40fourth-sphere-247108.iam.gserviceaccount.com"
+}
