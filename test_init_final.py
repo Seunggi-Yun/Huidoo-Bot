@@ -215,7 +215,7 @@ def init():
 			fixed_bossTime[i] = fixed_bossTime[i] + datetime.timedelta(days=int(1))
 	
 	scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-	credentials = ServiceAccountCredentials.from_json_keyfile_name('./' + basicSetting[8], scope)
+	credentials = ServiceAccountCredentials.from_json_keyfile_name(basicSetting[8], scope)
 	gc = gspread.authorize(credentials)
 	#inidata.close()
 
