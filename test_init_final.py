@@ -7,11 +7,9 @@ import discord
 import datetime
 import random
 import math
-import gspread
 from discord.ext import commands
 from gtts import gTTS
 from github import Github
-from oauth2client.service_account import ServiceAccountCredentials
 import base64
 
 if not discord.opus.is_loaded():
@@ -98,8 +96,6 @@ def init():
 	global channel_type
 	global LoadChk
 	
-	global gc
-	
 	tmp_bossData = []
 	tmp_fixed_bossData = []
 	f = []
@@ -123,14 +119,13 @@ def init():
 		fixed_inputData.remove('\r')
 
 	basicSetting.append(inputData[0][11:])   #0 : timezone
-	basicSetting.append(inputData[5][15:])   #1 : before_alert
-	basicSetting.append(inputData[7][10:])   #2 : mungChk
-	basicSetting.append(inputData[6][16:])   #3 : before_alert1
-	basicSetting.append(inputData[2][14:16]) #4 : restarttime 시
-	basicSetting.append(inputData[2][17:])   #5 : restarttime 분
-	basicSetting.append(inputData[3][15:])   #6 : voice채널 ID
-	basicSetting.append(inputData[4][14:])   #7 : text채널 ID
-	basicSetting.append(inputData[1][12:])   #8 : google json 파일
+	basicSetting.append(inputData[4][15:])   #1 : before_alert
+	basicSetting.append(inputData[6][10:])   #2 : mungChk
+	basicSetting.append(inputData[5][16:])   #3 : before_alert1
+	basicSetting.append(inputData[1][14:16]) #4 : restarttime 시
+	basicSetting.append(inputData[1][17:])   #5 : restarttime 분
+	basicSetting.append(inputData[2][15:])   #6 : voice채널 ID
+	basicSetting.append(inputData[3][14:])   #7 : text채널 ID
 	
 	for i in range(len(basicSetting)):
 		basicSetting[i] = basicSetting[i].strip()
@@ -142,14 +137,14 @@ def init():
 		basicSetting[7] = int(basicSetting[7])
 	#print (inputData, len(inputData))
 	
-	bossNum = int((len(inputData)-8)/5)
+	bossNum = int((len(inputData)-7)/5)
 
 	fixed_bossNum = int(len(fixed_inputData)/4) 
 	
 	#print (bossNum)
 	
 	for i in range(bossNum):
-		tmp_bossData.append(inputData[i*5+8:i*5+13])
+		tmp_bossData.append(inputData[i*5+7:i*5+12])
 
 	for i in range(fixed_bossNum):
 		tmp_fixed_bossData.append(fixed_inputData[i*4:i*4+4]) 
@@ -213,6 +208,8 @@ def init():
 	for i in range(fixed_bossNum):
 		if fixed_bossTime[i] < tmp_fixed_now :
 			fixed_bossTime[i] = fixed_bossTime[i] + datetime.timedelta(days=int(1))
+		
+	#inidata.close()
 
 init()
 
@@ -282,6 +279,10 @@ async def my_background_task():
 			if channel != '':			
 				#await client.get_channel(channel).send('now : ' + nowDateString + '   ' + nowTimeString + '  end : ' + endDateString + '   ' + endTimeString, tts=False)
 				if endTimeString == nowTimeString and endDateString == nowDateString:
+					for i in range(bossNum):
+						if bossMungFlag[i] == True:
+							bossTimeString[i] = tmp_bossTime[i].strftime('%H:%M:%S')
+							bossDateString[i] = tmp_bossTime[i].strftime('%Y-%m-%d')
 					await dbSave()
 					await client.get_channel(channel).send('<갑자기 인사해도 놀라지마세요!>', tts=False)
 					await asyncio.sleep(2)
@@ -531,8 +532,6 @@ async def on_ready():
 	
 	global chkvoicechannel
 	global chflg
-	
-	global gc
 			
 	print("Logged in as ") #화면에 봇의 아이디, 닉네임이 출력됩니다.
 	print(client.user.name)
@@ -656,6 +655,33 @@ async def on_message(msg):
 		chflg = 1
 		
 	if client.get_channel(channel) != msg.channel :
+		##### 사다리 채널바꾸기
+		'''
+		if msg.channel.id == int('552122574855864321'): #### 사다리 채널ID 값넣으면 됨
+			message = await msg.channel.fetch_message(msg.id)
+			##################################
+
+			if message.content.startswith('!사다리'):
+				ladder = []
+				ladder = message.content[5:].split(" ")
+				num_cong = int(ladder[0])
+				del(ladder[0])
+				if num_cong < len(ladder):
+					result_ladder = random.sample(ladder, num_cong)
+					result_ladderSTR = ','.join(map(str, result_ladder))
+					embed = discord.Embed(
+						title = "----- 당첨! -----",
+						description= '```' + result_ladderSTR + '```',
+						color=0xff00ff
+						)
+					await msg.channel.send(embed=embed, tts=False)
+				else:
+					await msg.channel.send('```추첨인원이 총 인원과 같거나 많습니다. 재입력 해주세요```', tts=False)
+
+			##################################
+		else :
+			return None
+		'''
 		return None
 	else :
 		message = await client.get_channel(channel).fetch_message(msg.id)
@@ -925,6 +951,8 @@ async def on_message(msg):
 			else:
 				await client.get_channel(channel).send('```추첨인원이 총 인원과 같거나 많습니다. 재입력 해주세요```', tts=False)
 			
+		##################################
+		
 		if message.content.startswith('!메뉴'):
 			embed = discord.Embed(
 					title = "----- 메뉴 -----",
@@ -971,6 +999,10 @@ async def on_message(msg):
 		##################################
 
 		if message.content.startswith('!명치'):
+			for i in range(bossNum):
+				if bossMungFlag[i] == True:
+					bossTimeString[i] = tmp_bossTime[i].strftime('%H:%M:%S')
+					bossDateString[i] = tmp_bossTime[i].strftime('%Y-%m-%d')
 			await dbSave()
 			await client.get_channel(channel).send('<명치 맞고 숨고르는 중... 갑자기 인사해도 놀라지마세요!>', tts=False)
 			await asyncio.sleep(2)
@@ -1272,8 +1304,6 @@ async def on_message(msg):
 			now3 = datetime.datetime.now() + datetime.timedelta(hours = int(basicSetting[0]))
 			await client.get_channel(channel).send(now3.strftime('%Y-%m-%d') + '   ' + now3.strftime('%H:%M:%S'), tts=False)
 
-		##################################
-			
 		if message.content.startswith('!리젠'):
 			embed = discord.Embed(
 					title='----- 리스폰 보스 -----',
@@ -1284,10 +1314,10 @@ async def on_message(msg):
 			embed.add_field(name='4시간', value='아르,도펠', inline=False)
 			embed.add_field(name='5시간', value='에자', inline=False)
 			embed.add_field(name='6시간', value='감시자 데몬', inline=False)
-			embed.add_field(name='6시간 53', value='피닉스', inline=False)
+			embed.add_field(name='6시간 53분', value='피닉스', inline=False)
 			embed.add_field(name='7시간', value='데스나이트', inline=False)
 			embed.add_field(name='8시간', value='리칸트', inline=False)
 			embed.add_field(name='10시간', value='커츠', inline=False)
 			await client.get_channel(channel).send(embed=embed, tts=False)
-			
+
 client.run(access_token)
