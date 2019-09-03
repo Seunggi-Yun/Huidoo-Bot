@@ -213,11 +213,6 @@ def init():
 	for i in range(fixed_bossNum):
 		if fixed_bossTime[i] < tmp_fixed_now :
 			fixed_bossTime[i] = fixed_bossTime[i] + datetime.timedelta(days=int(1))
-	
-	scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-	credentials = ServiceAccountCredentials.from_json_keyfile_name(basicSetting[8], scope)
-	gc = gspread.authorize(credentials)
-	#inidata.close()
 
 init()
 
@@ -1295,74 +1290,4 @@ async def on_message(msg):
 			embed.add_field(name='10시간', value='커츠', inline=False)
 			await client.get_channel(channel).send(embed=embed, tts=False)
 			
-		################ 정산확인 ################ 
-
-		if message.content.startswith('!정산 '):
-			SearchID = hello[4:]
-			wks = gc.open("분배시트").worksheet("모든내역검색")
-
-			wks.update_acell('E2', SearchID)
-
-			result = wks.acell('F2').value
-
-			await client.get_channel(channel).send(SearchID + '님의 분배금은 ' + result + ' 다이야 입니다.', tts=False)
-
-		################ 정산분배 ################ 
-
-		if message.content.startswith('!정산분배'):
-			SearchID = hello[6:]
-			wks = gc.open("분배시트").worksheet("줄내역검색")
-
-			Cell_ID = []
-			tmp_ID  = []
-			result_ID = []
-
-			Cell_Dia = []
-			tmp_Dia  = []
-			result_Dia = []
-
-			i = 0
-
-			wks.update_acell('E2', SearchID)
-
-			cell_ID_list = wks.range('L6:L200')
-			cell_Dia_list = wks.range('P6:P200')
-
-			for i in range(len(cell_ID_list)):
-				if cell_ID_list[i].value != '':
-					Cell_ID.append(cell_ID_list[i].value)
-					Cell_Dia.append(cell_Dia_list[i].value)
-				else:
-					break
-
-			tmp_ID = Cell_ID
-			result_ID = list(set(tmp_ID))
-
-			for i in range(len(result_ID)):
-				result_Dia.append(0)
-
-			for i in range(len(Cell_ID)):
-				for j in range(len(result_ID)):
-					if result_ID[j] == Cell_ID[i]:
-						result_Dia[j] = int(float(result_Dia[j]) + float(Cell_Dia[i]))
-
-			result = wks.acell('F2').value
-
-			information = ''
-			for i in range(len(result_ID)):
-				information += result_ID[i] + ' : ' + str(result_Dia[i]) + ' 다이야\n'
-
-			#await client.get_channel(channel).send(SearchID + '님이 분배해야할 다이야는 ' + result + ' 다이야 입니다.', tts=False)
-			embed = discord.Embed(
-					title = "----- 분 배 금 -----",
-					description= '총 '+ result + ' 다이야',
-					color=0xff00ff
-					)
-			embed.add_field(
-					name="----- 분배내역 -----",
-					value=information,
-					inline = False
-					)
-			await client.get_channel(channel).send( embed=embed, tts=False)
-
 client.run(access_token)
